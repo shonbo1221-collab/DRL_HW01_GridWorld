@@ -28,7 +28,4 @@
 - [邏輯實作] 於前端新增 `findPath` 函數，能夠根據 API 回傳的最佳方向 (Policy) 箭頭，從起點出發依序推導出代理人 (Agent) 實際的行走路線。當碰到障礙物或陷入死胡同時能主動防呆跳出。
 - [視覺優化] 在最後產生的網格結果中，自動將起點通往終點（或陷入無限迴圈前）的經過路線方塊標示為黃色 (`#f1c40f`)，讓探索軌跡與最佳解路徑一目瞭然。
 
-## 封裝為 Streamlit 應用程式 (2026-03-18)
-- [架構轉移] 根據要求建立 `streamlit_app.py`，完整復刻所有前端功能，包含互動式的狀態設定網格 (使用 st.button 與 Session State 實作)。
-- [渲染引擎] 利用 `st.components.v1.html` 將原先 HTML/CSS 生成的雙格結果 (HW1-2 與 HW1-3) 精美並列地鑲嵌於 Streamlit 框架內。
-- [環境部署] 協助將 `streamlit` 加入專案 `requirements.txt`，並提供一鍵啟動腳本 `run_streamlit.bat`。
+
