@@ -1,9 +1,50 @@
-# Homework 1: GridWorld
+# HW1: GridWorld 強化學習專案
 
-這是強化學習 (Reinforcement Learning) 的第一個作業：GridWorld。
+這是一個以強化學習 (Reinforcement Learning) 為基礎的 GridWorld (網格地圖) 代理人導航學習專案。本專案包含隨機策略評估 (Policy Evaluation) 以及價值迭代 (Value Iteration) 的最佳路徑推導。
 
-## 專案結構
-- `gridworld.py`: GridWorld 環境與智能體 (Agent) 實作
-- `main.py`: 執行測試與學習演算法的程式切入點
-- `requirements.txt`: 專案依賴套件
-- `Record.md`: 每次對話的紀錄與進度追蹤
+👉 **線上範例網頁**: [https://drl-hw-01-grid-world.vercel.app/](https://drl-hw-01-grid-world.vercel.app/)
+
+---
+
+## 專案分析 (基於 CRISP-DM 方法論)
+
+為了將強化學習專案結構化，我們借鏡了資料探勘的 **CRISP-DM (Cross-Industry Standard Process for Data Mining)** 流程來系統化分析此 GridWorld 專案的開發與學習環境：
+
+### 1. Business Understanding (業務理解)
+* **目標**：讓一個 AI 代理人 (Agent) 在一個充滿障礙物 (Obstacles) 的 $n \times n$ 網格中，學習如何從起點走到終點。
+* **核心挑戰**：這是一個典型的馬可夫決策過程 (MDP)，代理人必須在不知道全局最佳解的前提下，透過數學演算法歸納出能在最少步數內避開障礙物並到達終點的「最佳政策 (Optimal Policy)」。
+
+### 2. Data Understanding (數據/環境理解)
+在強化學習中，「數據」等同於環境的回饋與狀態特徵：
+* **狀態空間 (States, $S$)**：網格上的每一個座標，共 $n \times n$ 種狀態。
+* **行動空間 (Actions, $A$)**：代理人可選擇的上下左右四個方向 (↑, ↓, ←, →)。
+* **獎勵機制 (Rewards, $R$)**：每走一步扣 1 分 ($R=-1$) 以懲罰不必要的徘徊；撞牆停在原地同樣扣 1 分；走到終點得 10 分 ($R=10$)。
+* **轉移機率 (Transitions, $P$)**：設定為確定性轉移 (Deterministic)，即選擇往右必定往右移動一格 (\(P = 1.0\))。
+
+### 3. Data Preparation (數據/環境準備)
+* **動態網格生成**：透過前端互動介面，允許使用者自行設定網格的維度 $n (5 \sim 9)$。
+* **特徵配置**：使用者手動點擊配置起點 (綠色)、終點 (紅色) 以及 $n-2$ 個障礙物 (灰色)，即時建構代理人的訓練與學習地圖。
+
+### 4. Modeling (建立模型 / 演算法實作)
+專案核心針對強化學習的兩個重要階段建立計算模型 ($\gamma = 0.9$)：
+* **HW1-2 策略評估 (Policy Evaluation)**：代理人採取純隨機確定的方向。透過 Bellman Equation 迭代計算出該隨機策略下的價值函數 $V(s)$。由於隨機策略常陷入死胡同，大部份狀態 $V(s)$ 會收斂為負面極值 (例如 `-10.0`)。
+* **HW1-3 價值迭代 (Value Iteration)**：讓系統反覆尋找每個狀態的最大期望回報 $\max_a [R + \gamma V(s')]$ 並疊代更新，直到其數值完全收斂。接著從這個最佳的 $V(s)$ 中提煉出每個格子的最佳行動方向 $\pi^*(s)$。
+
+### 5. Evaluation (評估)
+* **視覺化對比**：提供一鍵「執行」按鈕，同步在畫面上平行展開兩個結果網格。
+* **數值與邏輯驗證**：
+  * 左側網格顯示隨機策略，多數 $V$ 值真實呈現了死胡同狀態的數值懲罰。
+  * 右側網格顯示最佳策略，$V$ 值呈現以終點為中心向外穩定依折扣因子遞減 (如 10.0 $\to$ 8.0 $\to$ 6.2)。
+  * **路徑防呆探索**：前端整合了尋路演算法，自動驗證 Policy 箭頭是否會順利將起點導航至終點，並渲染成黃色軌跡以供人工稽核。這證實了演算法的 $\pi^*(s)$ 皆 100% 正確避開障礙物並朝向終點。
+
+### 6. Deployment (部署)
+* **本地與雲端伺服器**：建立以 Python (Flask 或 Streamlit) 為基礎的輕量級 Web 伺服器，提供 `/api/` 讓前端能動態呼叫 RL 計算，確保流暢的體驗。
+* **線上展示**：本專案的靜態與 API 端點已成功整合佈署至 Vercel 等雲端平台以供遠端展示（點擊上方範例網頁網址進入）。
+
+---
+
+## 專案核心結構
+- `app.py`: Web 伺服器與路由端點
+- `rl_env.py`: 強化學習核心演算法 (Policy Evaluation, Value Iteration)
+- `templates/index.html`: 前端互動雙格介面、繪圖邏輯與黃色路徑生成
+- `Record.md`: 專案演進與開發日誌記錄
